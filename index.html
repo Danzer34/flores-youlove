@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Para Alejandra ❤️</title>
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:#000;
+  font-family:Arial,sans-serif;
+}
+canvas{display:block}
+
+.texto{
+  position:absolute;
+  top:6%;
+  width:100%;
+  text-align:center;
+  color:#ffb6c1;
+  z-index:5;
+  pointer-events:none;
+}
+h1{color:#ff4d6d;letter-spacing:3px;font-size:32px}
+p{
+  max-width:480px;
+  margin:auto;
+  font-style:italic;
+  font-size:19px;
+  line-height:1.4;
+  transition:text-shadow 1.5s;
+}
+.brillo{
+  text-shadow:0 0 15px #ffd1dc,0 0 35px #ffb6c1;
+}
+.firma{margin-top:18px;opacity:0;transition:opacity 3s}
+
+.tap{
+  position:fixed;
+  bottom:20px;
+  width:100%;
+  text-align:center;
+  color:#fff;
+  font-size:16px;
+  opacity:0.9;
+  z-index:10;
+  animation:blink 1.5s infinite;
+}
+@keyframes blink{
+  0%,100%{opacity:0.3}
+  50%{opacity:1}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="texto">
+  <h1>TE AMO ALEJANDRA</h1>
+  <p id="frase"></p>
+  <div class="firma" id="firma">— Danny</div>
+</div>
+
+<div class="tap" id="tap">⚠️ Toca la pantalla para activar la música</div>
+
+<audio id="audio" loop muted>
+  <source src="quiero-decirte.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const c = document.getElementById("canvas");
+const ctx = c.getContext("2d");
+const audio = document.getElementById("audio");
+c.width = innerWidth;
+c.height = innerHeight;
+
+/* ⭐ ESTRELLAS */
+const estrellas=[...Array(120)].map(()=>({
+ x:Math.random()*c.width,
+ y:Math.random()*c.height*0.6,
+ r:Math.random()*1.5+0.5,
+ o:Math.random(),
+ v:Math.random()*0.02+0.01
+}));
+
+/* ✨ LUCIÉRNAGAS */
+const luces=[...Array(30)].map(()=>({
+ x:Math.random()*c.width,
+ y:Math.random()*c.height,
+ v:Math.random()*0.4+0.2
+}));
+
+/* 🌸 PÉTALOS */
+const petalos=[...Array(30)].map(()=>({
+ x:Math.random()*c.width,
+ y:Math.random()*c.height,
+ r:Math.random()*6+4,
+ v:Math.random()*0.6+0.3,
+ a:Math.random()*Math.PI
+}));
+
+/* 💕 CORAZONES EMOJI */
+const corazones=[...Array(25)].map(()=>({
+ x:Math.random()*c.width,
+ y:Math.random()*-c.height,
+ s:Math.random()*0.8+0.6,
+ v:Math.random()*0.5+0.3,
+ r:Math.random()*0.02
+}));
+
+/* 🌙 LUNA */
+function luna(){
+ const x=c.width-120,y=120;
+ const g=ctx.createRadialGradient(x,y,30,x,y,110);
+ g.addColorStop(0,"#fff");
+ g.addColorStop(1,"rgba(255,255,255,0)");
+ ctx.fillStyle=g;
+ ctx.beginPath();
+ ctx.arc(x,y,110,0,Math.PI*2);
+ ctx.fill();
+}
+
+/* ❤️ CORAZÓN CENTRAL */
+let t=0;
+function corazon(){
+ let beat=0;
+ if(!audio.paused){
+  beat=Math.abs(Math.sin(audio.currentTime*2))*0.18;
+ }
+ ctx.save();
+ ctx.translate(c.width/2,c.height*0.45);
+ ctx.scale(3.2+beat,3.2+beat);
+ ctx.beginPath();
+ const max=Math.PI*2*Math.min(1,t/6);
+ for(let i=0;i<max;i+=0.01){
+  const x=16*Math.pow(Math.sin(i),3);
+  const y=-(13*Math.cos(i)-5*Math.cos(2*i)-2*Math.cos(3*i)-Math.cos(4*i));
+  ctx.lineTo(x,y);
+ }
+ ctx.strokeStyle="#ff4d6d";
+ ctx.lineWidth=2;
+ ctx.shadowColor="#ff4d6d";
+ ctx.shadowBlur=35;
+ ctx.stroke();
+ if(t>6){
+  ctx.fillStyle="#ff4d6d";
+  ctx.fill();
+ }
+ ctx.restore();
+}
+
+/* 🌸 FLORES */
+function flor(x,y,p){
+ ctx.strokeStyle="#4caf50";
+ ctx.lineWidth=4;
+ ctx.beginPath();
+ ctx.moveTo(x,y);
+ ctx.quadraticCurveTo(x+30,y+120,x,y+220*p);
+ ctx.stroke();
+
+ if(p>0.3){
+  ctx.fillStyle="#66bb6a";
+  ctx.beginPath();
+  ctx.ellipse(x-28,y+120,32,15,-0.4,0,Math.PI*2);
+  ctx.ellipse(x+28,y+160,32,15,0.4,0,Math.PI*2);
+  ctx.fill();
+ }
+
+ if(p>0.5){
+  for(let i=0;i<6;i++){
+   ctx.save();
+   ctx.translate(x,y);
+   ctx.rotate((Math.PI*2/6)*i);
+   ctx.beginPath();
+   ctx.moveTo(0,0);
+   ctx.quadraticCurveTo(20*p,-40*p,0,-90*p);
+   ctx.quadraticCurveTo(-20*p,-40*p,0,0);
+   ctx.fillStyle="#ffd700";
+   ctx.shadowColor="#ffd700";
+   ctx.shadowBlur=18;
+   ctx.fill();
+   ctx.restore();
+  }
+ }
+}
+
+/* 💌 TEXTO */
+const texto=
+"Estaba tan acostumbrado a ver mis ojos cansados y sin brillo, " +
+"que cuando vi esos hermosos ojos tuyos el mundo se detuvo. " +
+"Me quedé hechizado, porque en tu mirada encontré paz, hogar y amor.";
+
+let i=0;
+const frase=document.getElementById("frase");
+const firma=document.getElementById("firma");
+
+function escribir(){
+ if(i<texto.length){
+  frase.textContent+=texto[i++];
+  setTimeout(escribir,75);
+ }else{
+  frase.classList.add("brillo");
+  setTimeout(()=>firma.style.opacity=1,500);
+ }
+}
+escribir();
+
+/* 🎵 AUDIO */
+document.body.addEventListener("click",()=>{
+ audio.muted=false;
+ audio.play();
+ document.getElementById("tap").style.display="none";
+},{once:true});
+
+/* 🎬 LOOP */
+function animar(){
+ ctx.clearRect(0,0,c.width,c.height);
+
+ estrellas.forEach(e=>{
+  e.o+=e.v;
+  ctx.fillStyle=`rgba(255,255,255,${Math.abs(Math.sin(e.o))})`;
+  ctx.beginPath();
+  ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
+  ctx.fill();
+ });
+
+ luna();
+
+ luces.forEach(l=>{
+  ctx.fillStyle="rgba(255,215,0,0.8)";
+  ctx.beginPath();
+  ctx.arc(l.x,l.y,2,0,Math.PI*2);
+  ctx.fill();
+  l.y-=l.v;
+  if(l.y<0)l.y=c.height;
+ });
+
+ petalos.forEach(p=>{
+  ctx.fillStyle="rgba(255,182,193,0.6)";
+  ctx.beginPath();
+  ctx.ellipse(p.x,p.y,p.r,p.r*0.6,p.a,0,Math.PI*2);
+  ctx.fill();
+  p.y+=p.v;
+  if(p.y>c.height)p.y=-10;
+ });
+
+ corazones.forEach(h=>{
+  ctx.save();
+  ctx.translate(h.x,h.y);
+  ctx.rotate(h.r);
+  ctx.scale(h.s,h.s);
+  ctx.font="24px serif";
+  ctx.fillText("💖",0,0);
+  ctx.restore();
+  h.y+=h.v;
+  h.r+=0.01;
+  if(h.y>c.height+20){
+   h.y=-20;
+   h.x=Math.random()*c.width;
+  }
+ });
+
+ corazon();
+ flor(c.width/2-240,c.height*0.55,Math.min(1,(t-2)/5));
+ flor(c.width/2+240,c.height*0.55,Math.min(1,(t-2)/5));
+
+ t+=0.015;
+ requestAnimationFrame(animar);
+}
+animar();
+
+onresize=()=>{c.width=innerWidth;c.height=innerHeight};
+</script>
+
+</body>
+</html>
