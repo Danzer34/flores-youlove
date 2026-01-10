@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Para Alejandra ❤️</title>
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:radial-gradient(circle at top,#0b0f1a,#000);
+  font-family:Arial,sans-serif;
+}
+canvas{display:block}
+
+.texto{
+  position:absolute;
+  top:6%;
+  width:100%;
+  text-align:center;
+  color:#ffb6c1;
+  z-index:5;
+  pointer-events:none;
+}
+h1{color:#ff4d6d;letter-spacing:3px;font-size:32px}
+p{max-width:380px;margin:auto;font-style:italic;font-size:19px}
+.firma{margin-top:18px;opacity:0;transition:opacity 3s}
+
+.tap{
+  position:fixed;
+  bottom:20px;
+  width:100%;
+  text-align:center;
+  color:#fff;
+  font-size:16px;
+  opacity:0.9;
+  z-index:10;
+  animation:blink 1.5s infinite;
+}
+@keyframes blink{
+  0%,100%{opacity:0.3}
+  50%{opacity:1}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="texto">
+  <h1>TE AMO ALEJANDRA</h1>
+  <p id="frase"></p>
+  <div class="firma" id="firma">— Danny</div>
+</div>
+
+<div class="tap" id="tap">⚠️ Toca la pantalla para activar la música</div>
+
+<audio id="audio" loop muted>
+  <source src="quiero-decirte.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const c = document.getElementById("canvas");
+const ctx = c.getContext("2d");
+c.width = innerWidth;
+c.height = innerHeight;
+
+let t = 0;
+
+/* ❤️ CORAZÓN GIGANTE – TRAZO */
+function corazon(x,y,escala,progreso){
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(escala,escala);
+ ctx.beginPath();
+
+ const max = Math.PI*2*progreso;
+ for(let i=0;i<max;i+=0.01){
+  const px = 16*Math.pow(Math.sin(i),3);
+  const py = -(13*Math.cos(i)-5*Math.cos(2*i)-2*Math.cos(3*i)-Math.cos(4*i));
+  ctx.lineTo(px,py);
+ }
+
+ ctx.strokeStyle="#ff4d6d";
+ ctx.lineWidth=2;
+ ctx.shadowColor="#ff4d6d";
+ ctx.shadowBlur=30;
+ ctx.stroke();
+
+ if(progreso>=1){
+  ctx.fillStyle="#ff4d6d";
+  ctx.fill();
+ }
+
+ ctx.restore();
+}
+
+/* 🌸 FLOR – CRECE DESDE EL TALLO */
+function flor(x,y,prog,w){
+ // Tallo
+ ctx.beginPath();
+ ctx.moveTo(x,y);
+ ctx.lineTo(x,y+200*prog);
+ ctx.strokeStyle="#4caf50";
+ ctx.lineWidth=4;
+ ctx.stroke();
+
+ // Hojas
+ if(prog>0.3){
+  const hp=(prog-0.3)/0.7;
+  ctx.beginPath();
+  ctx.ellipse(x-25,y+90,30*hp,14*hp,-0.5,0,Math.PI*2);
+  ctx.ellipse(x+25,y+130,30*hp,14*hp,0.5,0,Math.PI*2);
+  ctx.fillStyle="#66bb6a";
+  ctx.fill();
+ }
+
+ // Centro
+ if(prog>0.5){
+  const cp=(prog-0.5)/0.5;
+  ctx.beginPath();
+  ctx.arc(x,y,8*cp,0,Math.PI*2);
+  ctx.fillStyle="#ffb300";
+  ctx.fill();
+ }
+
+ // Pétalos naciendo
+ if(prog>0.55){
+  const pp=(prog-0.55)/0.45;
+  for(let i=0;i<6;i++){
+   ctx.save();
+   ctx.translate(x,y);
+   ctx.rotate((Math.PI*2/6)*i+w);
+   ctx.beginPath();
+   ctx.moveTo(0,0);
+   ctx.quadraticCurveTo(20*pp,-40*pp,0,-90*pp);
+   ctx.quadraticCurveTo(-20*pp,-40*pp,0,0);
+   ctx.fillStyle="#ffd700";
+   ctx.shadowColor="#ffd700";
+   ctx.shadowBlur=15;
+   ctx.fill();
+   ctx.restore();
+  }
+ }
+}
+
+/* 💌 TEXTO */
+const mensaje="Desde tu raíz nació mi amor, y en cada pétalo vive mi promesa de cuidarte siempre.";
+let i=0;
+const frase=document.getElementById("frase");
+const firma=document.getElementById("firma");
+
+function escribir(){
+ if(i<mensaje.length){
+  frase.innerHTML+=mensaje.charAt(i++);
+  setTimeout(escribir,85);
+ }else{
+  setTimeout(()=>firma.style.opacity=1,1500);
+ }
+}
+escribir();
+
+/* 🎵 AUDIO */
+document.body.addEventListener("click",()=>{
+ const a=document.getElementById("audio");
+ a.muted=false;
+ a.play();
+ document.getElementById("tap").style.display="none";
+},{once:true});
+
+/* 🎬 ANIMACIÓN */
+function animar(){
+ ctx.clearRect(0,0,c.width,c.height);
+
+ const progCorazon=Math.min(1,t/6);
+ corazon(c.width/2,c.height*0.45,3.2,progCorazon);
+
+ const progFlor=Math.min(1,(t-2)/5);
+ if(progFlor>0){
+  flor(c.width/2-230,c.height*0.55,progFlor,Math.sin(t)*0.2);
+  flor(c.width/2+230,c.height*0.55,progFlor,-Math.sin(t)*0.2);
+ }
+
+ t+=0.012; // MÁS lento y elegante
+ requestAnimationFrame(animar);
+}
+animar();
+
+onresize=()=>{
+ c.width=innerWidth;
+ c.height=innerHeight;
+};
+</script>
+
+</body>
+</html>
