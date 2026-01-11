@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Para Alejandra ❤️</title>
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:radial-gradient(circle at top,#0b0f1a,#000);
+  font-family:Arial,sans-serif;
+}
+canvas{display:block}
+
+/* Pantalla de inicio */
+#tap{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.9);
+  color:#ffd1dc;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  z-index:10;
+  cursor:pointer;
+}
+
+/* Texto */
+.texto{
+  position:absolute;
+  top:6%;
+  width:100%;
+  text-align:center;
+  z-index:5;
+  pointer-events:none;
+}
+h1{
+  color:#ff4d6d;
+  letter-spacing:3px;
+  font-size:34px;
+}
+#frase{
+  color:#ffd1dc;
+  max-width:900px;
+  margin:auto;
+  font-style:italic;
+  font-size:18px;
+  line-height:1.7;
+  text-shadow:0 0 18px rgba(255,182,193,.7);
+}
+#firma{
+  margin-top:20px;
+  opacity:0;
+  transition:opacity 2.5s;
+  color:#ff9db5;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="tap">💖 Toca la pantalla para comenzar 💖</div>
+
+<canvas id="canvas"></canvas>
+
+<div class="texto">
+  <h1>TE AMO ALEJANDRA</h1>
+  <p id="frase"></p>
+  <div id="firma">— Danny</div>
+</div>
+
+<audio id="audio" loop>
+  <source src="quiero-decirte.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* ================= CANVAS ================= */
+const c = document.getElementById("canvas");
+const ctx = c.getContext("2d");
+function resize(){
+  c.width = innerWidth;
+  c.height = innerHeight;
+}
+resize();
+onresize = resize;
+
+/* ================= AUDIO ================= */
+const audio = document.getElementById("audio");
+const tap = document.getElementById("tap");
+tap.onclick = ()=>{
+  tap.style.display="none";
+  audio.play();
+  escribirTexto();
+};
+
+/* ================= FONDO ================= */
+const estrellas=[...Array(120)].map(()=>({
+ x:Math.random()*c.width,
+ y:Math.random()*c.height,
+ p:Math.random()*Math.PI*2
+}));
+
+function drawEstrellas(){
+ estrellas.forEach(e=>{
+  ctx.globalAlpha=0.3+Math.sin(Date.now()*0.002+e.p)*0.7;
+  ctx.fillStyle="#fff";
+  ctx.fillRect(e.x,e.y,2,2);
+ });
+ ctx.globalAlpha=1;
+}
+
+function luna(){
+ ctx.beginPath();
+ ctx.arc(c.width-120,120,55,0,Math.PI*2);
+ ctx.fillStyle="#fff1c1";
+ ctx.shadowColor="#fff1c1";
+ ctx.shadowBlur=40;
+ ctx.fill();
+}
+
+/* ================= CORAZÓN ================= */
+let drawH=0;
+function corazon(){
+ ctx.save();
+ ctx.translate(c.width/2,c.height*0.45);
+ ctx.scale(9,9);
+ ctx.beginPath();
+ for(let i=0;i<drawH;i+=0.02){
+  const x=16*Math.pow(Math.sin(i),3);
+  const y=-(13*Math.cos(i)-5*Math.cos(2*i)-2*Math.cos(3*i)-Math.cos(4*i));
+  ctx.lineTo(x,y);
+ }
+ ctx.strokeStyle="#ff4d6d";
+ ctx.lineWidth=0.4;
+ ctx.shadowColor="#ff4d6d";
+ ctx.shadowBlur=25;
+ ctx.stroke();
+ ctx.restore();
+ if(drawH<Math.PI*2) drawH+=0.008;
+}
+
+/* ================= CORAZONES CAYENDO ================= */
+const hearts=[...Array(35)].map(()=>({
+ x:Math.random()*c.width,
+ y:Math.random()*c.height,
+ v:Math.random()+0.6
+}));
+function drawHearts(){
+ hearts.forEach(h=>{
+  ctx.font="18px serif";
+  ctx.fillText("💖",h.x,h.y);
+  h.y+=h.v;
+  if(h.y>c.height){
+    h.y=-20;
+    h.x=Math.random()*c.width;
+  }
+ });
+}
+
+/* ================= ANIMACIÓN ================= */
+function animar(){
+ ctx.clearRect(0,0,c.width,c.height);
+ luna();
+ drawEstrellas();
+ corazon();
+ drawHearts();
+ requestAnimationFrame(animar);
+}
+animar();
+
+/* ================= TEXTO ROMÁNTICO ================= */
+const texto = `
+Estaba tan acostumbrado a ver mis ojos cansados,
+a caminar sin rumbo y sin ilusión,
+que cuando apareciste tú todo cambió sin avisar.
+
+Tus ojos me enseñaron que el amor no siempre duele,
+que también puede ser calma, refugio y hogar.
+Desde entonces cada latido mío
+pronuncia tu nombre en silencio,
+y cada pensamiento termina llevándome a ti.
+
+No sé qué nos depare el destino,
+pero sí sé que, mientras exista un latido en mi pecho,
+siempre te elegiré a ti.
+`;
+
+const frase = document.getElementById("frase");
+const firma = document.getElementById("firma");
+let i=0;
+
+function escribirTexto(){
+ if(i<texto.length){
+  frase.innerHTML += texto.charAt(i);
+  i++;
+  setTimeout(escribirTexto,45);
+ }else{
+  setTimeout(()=>firma.style.opacity=1,1500);
+ }
+}
+</script>
+
+</body>
+</html>
