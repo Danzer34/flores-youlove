@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Para Alejandra ❤️</title>
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:radial-gradient(circle at top,#0b0f1a,#000);
+  font-family:Arial,sans-serif;
+}
+canvas{display:block}
+
+.texto{
+  position:absolute;
+  top:6%;
+  width:100%;
+  text-align:center;
+  z-index:5;
+  pointer-events:none;
+}
+h1{
+  color:#ff4d6d;
+  letter-spacing:3px;
+  font-size:34px;
+}
+#frase{
+  color:#ffd1dc;
+  max-width:760px;
+  margin:auto;
+  font-style:italic;
+  font-size:18px;
+  text-shadow:0 0 12px rgba(255,182,193,0.4);
+}
+#firma{
+  margin-top:15px;
+  opacity:0;
+  color:#ff9db5;
+  transition:opacity 2s;
+}
+
+#letraCancion{
+  position:absolute;
+  bottom:6%;
+  width:100%;
+  text-align:center;
+  color:#ffe4ec;
+  font-size:16px;
+  line-height:1.6;
+  font-style:italic;
+  text-shadow:0 0 14px rgba(255,182,193,0.7);
+  max-width:760px;
+  left:50%;
+  transform:translateX(-50%);
+  opacity:0;
+  transition:opacity 2s;
+  pointer-events:none;
+}
+
+#tap{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  color:#ffd1dc;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  z-index:10;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="tap">💖 Toca la pantalla para comenzar 💖</div>
+
+<canvas id="canvas"></canvas>
+
+<div class="texto">
+  <h1>TE AMO ALEJANDRA</h1>
+  <p id="frase"></p>
+  <div id="firma">— Danny</div>
+</div>
+
+<div id="letraCancion"></div>
+
+<audio id="audio" loop>
+  <source src="quiero-decirte.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const c = document.getElementById("canvas");
+const ctx = c.getContext("2d");
+c.width = innerWidth;
+c.height = innerHeight;
+
+const audio = document.getElementById("audio");
+const tap = document.getElementById("tap");
+const letraDiv = document.getElementById("letraCancion");
+
+tap.onclick = ()=>{
+  tap.style.display="none";
+  audio.play();
+};
+
+onresize=()=>{c.width=innerWidth;c.height=innerHeight};
+
+// 🌙 Luna
+function luna(){
+ ctx.beginPath();
+ ctx.arc(c.width-120,120,55,0,Math.PI*2);
+ ctx.fillStyle="#fff3c4";
+ ctx.shadowColor="#fff3c4";
+ ctx.shadowBlur=40;
+ ctx.fill();
+}
+
+// ✨ Estrellas
+const estrellas=[...Array(80)].map(()=>({
+ x:Math.random()*c.width,
+ y:Math.random()*c.height,
+ a:Math.random()
+}));
+
+function drawEstrellas(){
+ estrellas.forEach(e=>{
+  ctx.globalAlpha=0.4+Math.sin(Date.now()*0.002+e.a)*0.6;
+  ctx.fillStyle="#fff";
+  ctx.fillRect(e.x,e.y,2,2);
+ });
+ ctx.globalAlpha=1;
+}
+
+// 💓 Corazón trazado
+let drawHeart=0;
+function corazon(){
+ ctx.save();
+ ctx.translate(c.width/2,c.height*0.45);
+ ctx.scale(9,9);
+ ctx.beginPath();
+ for(let i=0;i<drawHeart;i+=0.02){
+  const x=16*Math.pow(Math.sin(i),3);
+  const y=-(13*Math.cos(i)-5*Math.cos(2*i)-2*Math.cos(3*i)-Math.cos(4*i));
+  ctx.lineTo(x,y);
+ }
+ ctx.strokeStyle="#ff4d6d";
+ ctx.lineWidth=0.4;
+ ctx.shadowColor="#ff4d6d";
+ ctx.shadowBlur=20;
+ ctx.stroke();
+ ctx.restore();
+ if(drawHeart<Math.PI*2)drawHeart+=0.01;
+}
+
+// 💖 Corazones cayendo
+const corazones=[...Array(25)].map(()=>({
+ x:Math.random()*c.width,
+ y:Math.random()*c.height,
+ v:Math.random()+0.6
+}));
+
+function drawCorazones(){
+ corazones.forEach(h=>{
+  ctx.font="18px serif";
+  ctx.fillText("💖",h.x,h.y);
+  h.y+=h.v;
+  if(h.y>c.height){h.y=-20;h.x=Math.random()*c.width}
+ });
+}
+
+// 🎶 Letra sincronizada (empieza a los 19s)
+const letra=[
+{t:19,txt:"Simplemente otro día más planeando recuperarte"},
+{t:26,txt:"Pero ahora que no estás aquí, me di cuenta de lo que perdí"},
+{t:36,txt:"Quiero decirte que lo siento, que te echo de menos"},
+{t:46,txt:"Te quiero todavía, no pienses que ya te di por perdida"},
+{t:60,txt:"Que cuando vi esos hermosos ojos tuyos, me quedé hechizado"},
+];
+
+setInterval(()=>{
+ letra.forEach(l=>{
+  if(audio.currentTime>l.t){
+   letraDiv.style.opacity=1;
+   letraDiv.innerText=l.txt;
+  }
+ });
+},500);
+
+// 💌 Frase romántica más larga
+const mensaje=
+"Estaba tan acostumbrado a mirar mis propios ojos cansados, " +
+"que el día en que me encontré con los tuyos entendí que aún existía la magia. " +
+"Desde entonces, cada pensamiento, cada latido y cada silencio " +
+"lleva tu nombre escondido en lo más profundo de mí. " +
+"Amarte no fue una elección… fue un destino.";
+
+let i=0;
+function escribir(){
+ if(i<mensaje.length){
+  document.getElementById("frase").innerHTML+=mensaje.charAt(i++);
+  setTimeout(escribir,55);
+ }else{
+  document.getElementById("firma").style.opacity=1;
+ }
+}
+escribir();
+
+// 🎬 Animación
+function animar(){
+ ctx.clearRect(0,0,c.width,c.height);
+ luna();
+ drawEstrellas();
+ corazon();
+ drawCorazones();
+ requestAnimationFrame(animar);
+}
+animar();
+</script>
+
+</body>
+</html>
